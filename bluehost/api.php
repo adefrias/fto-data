@@ -5,7 +5,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 
-const COLS = ['users','cands','rides','evals','notifs','audit','templates','rtTpls','evTpls','levels','comps','messages','ceTpls','cevals'];
+const COLS = ['users','cands','rides','evals','notifs','audit','templates','rtTpls','evTpls','levels','comps','messages','ceTpls','cevals','assigns'];
 const IMMUTABLE = ['evals','cevals'];          // submitted evaluations can never be changed or removed
 const MAX_DOC = 524288;                         // 512 KB per document
 
