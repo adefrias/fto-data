@@ -5,7 +5,7 @@
   function err(m, code) { var e = new Error(m); e.code = code || 'unavailable'; return e; }
   function post(body) {
     return fetch(API, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'onboard' }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw err(j.error || 'Save failed (' + r.status + ')', r.status >= 500 ? 'unavailable' : 'bad_request'); return j; }); },
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (r.status === 401 && j.error === 'auth') { location.reload(); throw err('Signed out.', 'unauthenticated'); } if (!r.ok) throw err(j.error || 'Save failed (' + r.status + ')', r.status >= 500 ? 'unavailable' : r.status === 403 ? 'permission_denied' : 'bad_request'); return j; }); },
         function () { throw err('Could not reach the server.'); });
   }
   function snap(docs) {
@@ -19,7 +19,7 @@
     inflight = true;
     var q = cols.map(function (c) { return c + ':' + (c in vers ? vers[c] : -1); }).join(',');
     fetch(API + '?v=' + encodeURIComponent(q), { credentials: 'same-origin', cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw err('Server error ' + r.status); return r.json(); })
+      .then(function (r) { if (r.status === 401) { location.reload(); throw err('Signed out.', 'unauthenticated'); } if (!r.ok) throw err('Server error ' + r.status); return r.json(); })
       .then(function (j) {
         Object.keys(j.cols || {}).forEach(function (c) { vers[c] = j.cols[c].v; first[c] = true; var s = snap(j.cols[c].docs); (subs[c] || []).forEach(function (x) { x.fn(s); }); });
       })
@@ -50,11 +50,18 @@
   var downloads = {
     save: function (o) {
       return new Promise(function (res) {
-        var b = new Blob([o.data], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
+        var b = new Blob([o.data], { type: /\.json$/i.test(o.filename) ? 'application/json' : 'text/csv;charset=utf-8' }), a = document.createElement('a');
         a.href = URL.createObjectURL(b); a.download = o.filename; document.body.appendChild(a); a.click();
         setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); res({ status: 'saved' });
       });
     }
   };
-  window.claude = { use: function (n) { return Promise.resolve(n === 'db' ? db : n === 'user' ? user : n === 'downloads' ? downloads : null); } };
+  var auth = {
+    me: function () { return fetch(API + '?a=me', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { if (!r.ok) throw err('Server error ' + r.status); return r.json(); }, function () { throw err('Could not reach the server.'); }); },
+    login: function (email, pw) { return post({ op: 'login', email: email, pw: pw }); },
+    logout: function () { return post({ op: 'logout' }); },
+    changePassword: function (o, n) { return post({ op: 'password', old: o, new: n }); },
+    setup: function (o) { return post({ op: 'setup', name: o.name, email: o.email, pw: o.pw, starter: o.starter }); }
+  };
+  window.claude = { use: function (n) { return Promise.resolve(n === 'db' ? db : n === 'user' ? user : n === 'downloads' ? downloads : n === 'auth' ? auth : null); } };
 })();

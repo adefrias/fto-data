@@ -11,3 +11,6 @@ Header always set X-Frame-Options "SAMEORIGIN"
 Header always set Referrer-Policy "same-origin"
 Header always set X-Robots-Tag "noindex, nofollow"
 </IfModule>
+<FilesMatch "^(config(\.sample)?\.php)$">
+  Require all denied
+</FilesMatch>
