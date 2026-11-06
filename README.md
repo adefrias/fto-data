@@ -16,7 +16,7 @@ vercel.json         output folder, security headers, daily reminder cron
 
 ## Sign-in and security (server-side)
 - Sign-in happens on the server. The browser gets a session cookie (HttpOnly, SameSite=Strict, Secure); sessions end after 30 minutes without activity, and the app signs out after 15 minutes of inactivity.
-- The server enforces who can read and write each record type: candidates only see their own records, FTO reviews are visible to administrators only, FTOs can only create their own ride-time entries and evaluations, submitted evaluations can never be changed or removed, and so on. Role and active-status changes apply immediately. Password hashes are never sent to browsers.
+- The server enforces who can read and write each record type: candidates only see their own records, instructors can create candidate-level accounts (but not other roles), FTO reviews are visible to administrators only, FTOs can only create their own ride-time entries and evaluations, submitted evaluations can never be changed or removed, and so on. Role and active-status changes apply immediately. Password hashes are never sent to browsers.
 - Repeated failed sign-ins lock the email address for 5 minutes (and an IP address after 30 failures).
 - **Upgrading from the earlier version:** push the new files. Existing accounts keep their passwords (same hash format). No database migration is needed; new tables are created automatically.
 - Limits worth knowing: a user's name/role list is visible to other signed-in users (needed for the app to work); the lock-out counters work per email and per IP behind Vercel's proxy.
