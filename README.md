@@ -8,9 +8,6 @@ lib/handler.js      sign-in, sessions, role permissions and database logic (tabl
 vercel.json         output folder, security headers, daily reminder cron
 ```
 
-## Other hosting
-`bluehost/` contains a PHP + SQLite version for cPanel/Bluehost shared hosting (see `bluehost/DEPLOY.md`).
-
 ## Deploy
 1. **Vercel dashboard → Add New → Project →** import this GitHub repository (branch `main`). Framework preset: **Other**. Leave build settings as they are. Deploy once.
 2. In the project open **Storage → Create Database → Neon (Postgres)**, create it, and **Connect** it to the project for all environments. Vercel adds `DATABASE_URL` automatically.

@@ -1,4 +1,4 @@
-// Provides the small `window.claude` interface the app expects, backed by api.php.
+// Provides the small `window.claude` interface the app expects, backed by /api/db.
 (function () {
   var API = '/api/db', POLL = 8000;
   var vers = {}, subs = {}, timer = null, inflight = false, first = {};
